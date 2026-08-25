@@ -9,16 +9,18 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink:     #1a1a2e;
-      --gold:    #c9a84c;
-      --gold-lt: #e8d08a;
+      --ink:     #2a1a1a;
+      --burgundy: #6B1C23;
+      --burgundy-lt: #8B2E3A;
+      --gold:    #D4AF37;
+      --gold-lt: #E8D5A0;
       --cream:   #fdf8f0;
-      --muted:   #7a7a8a;
-      --line:    rgba(201,168,76,0.3);
+      --muted:   #8a6b6b;
+      --line:    rgba(212,175,55,0.3);
     }
 
     body {
-      background: #0f0f1a;
+      background: linear-gradient(135deg, #1a0f0f 0%, #2a1414 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -34,20 +36,31 @@
       background: var(--cream);
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.8);
       position: relative;
     }
 
     /* ── HEADER BAND ── */
     .ticket-header {
-      background: var(--ink);
+      background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-lt) 100%);
       padding: 28px 28px 22px;
       position: relative;
       overflow: hidden;
     }
 
-    /* decorative musical staff lines */
+    /* Decorative musical ornament - top */
     .ticket-header::before {
+      content: '♪ ♪ ♪';
+      position: absolute;
+      top: 8px;
+      right: 20px;
+      font-size: 18px;
+      color: rgba(212,175,55,0.15);
+      letter-spacing: 12px;
+    }
+
+    /* Decorative line pattern */
+    .ticket-header::after {
       content: '';
       position: absolute;
       inset: 0;
@@ -55,8 +68,8 @@
         180deg,
         transparent 0px,
         transparent 10px,
-        rgba(201,168,76,0.08) 10px,
-        rgba(201,168,76,0.08) 11px
+        rgba(212,175,55,0.08) 10px,
+        rgba(212,175,55,0.08) 11px
       );
       pointer-events: none;
     }
@@ -65,9 +78,11 @@
       font-size: 10px;
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--gold-lt);
       margin-bottom: 10px;
       font-weight: 500;
+      position: relative;
+      z-index: 1;
     }
 
     .event-name {
@@ -76,6 +91,8 @@
       font-weight: 700;
       color: var(--cream);
       line-height: 1.05;
+      position: relative;
+      z-index: 1;
     }
 
     .event-name em {
@@ -86,8 +103,10 @@
     .event-sub {
       margin-top: 8px;
       font-size: 12px;
-      color: rgba(253,248,240,0.5);
+      color: rgba(253,248,240,0.6);
       letter-spacing: 0.5px;
+      position: relative;
+      z-index: 1;
     }
 
     /* ── GOLD DIVIDER ── */
@@ -98,7 +117,7 @@
 
     /* ── INFO STRIP ── */
     .info-strip {
-      background: var(--ink);
+      background: linear-gradient(90deg, var(--burgundy) 0%, var(--burgundy-lt) 100%);
       display: flex;
       gap: 0;
     }
@@ -106,15 +125,26 @@
     .info-cell {
       flex: 1;
       padding: 14px 18px;
-      border-right: 1px solid rgba(201,168,76,0.2);
+      border-right: 1px solid rgba(212,175,55,0.2);
+      position: relative;
     }
     .info-cell:last-child { border-right: none; }
+
+    /* Ornamental dots before each cell */
+    .info-cell::before {
+      content: '◆';
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      font-size: 8px;
+      color: rgba(212,175,55,0.3);
+    }
 
     .info-label {
       font-size: 9px;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--gold-lt);
       margin-bottom: 4px;
     }
 
@@ -123,6 +153,28 @@
       color: var(--cream);
       font-weight: 500;
       line-height: 1.3;
+    }
+
+    /* ── OPEN GATE SECTION ── */
+    .gate-section {
+      background: rgba(212,175,55,0.08);
+      padding: 12px 28px;
+      text-align: center;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+    }
+
+    .gate-label {
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .gate-time {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--burgundy);
     }
 
     /* ── BODY ── */
@@ -142,7 +194,7 @@
       font-family: 'Playfair Display', serif;
       font-size: 22px;
       font-weight: 700;
-      color: var(--ink);
+      color: var(--burgundy);
       line-height: 1.2;
       margin-bottom: 20px;
     }
@@ -154,19 +206,20 @@
     }
 
     .meta-pill {
-      background: #f0ebe0;
+      background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%);
+      border: 1px solid rgba(212,175,55,0.2);
       border-radius: 6px;
       padding: 6px 12px;
     }
 
     .meta-pill .ml { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-    .meta-pill .mv { font-size: 12px; font-weight: 500; color: var(--ink); margin-top: 2px; }
+    .meta-pill .mv { font-size: 12px; font-weight: 500; color: var(--burgundy); margin-top: 2px; }
 
     /* ── PERFORATED TEAR LINE ── */
     .tear-line {
       position: relative;
       margin: 0 -28px;
-      border-top: 2px dashed rgba(201,168,76,0.4);
+      border-top: 2px dashed rgba(212,175,55,0.4);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -176,10 +229,11 @@
     .tear-circle {
       width: 20px;
       height: 20px;
-      background: #0f0f1a;
+      background: var(--cream);
+      border: 2px solid var(--burgundy);
       border-radius: 50%;
       flex-shrink: 0;
-      margin: -10px 0;
+      margin: -12px 0;
     }
 
     /* ── QR STUB ── */
@@ -194,8 +248,9 @@
       background: white;
       border-radius: 12px;
       padding: 8px;
-      border: 1px solid var(--line);
+      border: 2px solid var(--gold);
       flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     .qr-wrap img {
@@ -209,7 +264,7 @@
     }
 
     .stub-info .sl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-    .stub-info .sv { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 12px; }
+    .stub-info .sv { font-size: 13px; font-weight: 500; color: var(--burgundy); margin-bottom: 12px; font-family: 'Playfair Display', serif; }
 
     .stub-note {
       font-size: 10px;
@@ -221,24 +276,19 @@
 
     /* ── FOOTER ── */
     .ticket-footer {
-      background: var(--ink);
-      padding: 12px 28px;
+      background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-lt) 100%);
+      padding: 14px 28px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      text-align: center;
     }
 
     .footer-org {
-      font-size: 10px;
-      color: rgba(253,248,240,0.4);
+      font-size: 11px;
+      color: var(--gold-lt);
       letter-spacing: 0.5px;
-    }
-
-    .footer-valid {
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
+      font-weight: 500;
     }
 
     /* ── INVALID STATE ── */
@@ -278,12 +328,18 @@
     </div>
     <div class="info-cell">
       <div class="info-label">Waktu</div>
-      <div class="info-value">15.00 – 16.00<br/>WIB</div>
+      <div class="info-value">16.00 – 17.30<br/>WIB</div>
     </div>
     <div class="info-cell">
       <div class="info-label">Tempat</div>
-      <div class="info-value">Teleconference<br/>Gd. C Lt. 12</div>
+      <div class="info-value">Ruang Teleconference<br/>Gd. C Lt. 12</div>
     </div>
+  </div>
+
+  <!-- OPEN GATE SECTION -->
+  <div class="gate-section">
+    <div class="gate-label">🚪 Pembukaan Pintu</div>
+    <div class="gate-time">15.00 WIB</div>
   </div>
 
   <!-- BODY -->
@@ -325,8 +381,7 @@
 
   <!-- FOOTER -->
   <div class="ticket-footer">
-    <div class="footer-org">PSM Unpam · Kampus Viktor</div>
-    <div class="footer-valid">Tiket Resmi</div>
+    <div class="footer-org">PSM Gita Sasmita Universitas Pamulang</div>
   </div>
 
 </div>
