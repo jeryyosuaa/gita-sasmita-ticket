@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Scanner Tiket - Gita Sasmita</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <!-- Load HTML5 QRCode -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #11080a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    /* Peringatan Local File */
+    #warning-box {
+      display: none;
+      background: #dc2626;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    h1 { font-size: 18px; color: #d4af37; margin-bottom: 5px; }
+    p.sub { font-size: 12px; color: #a1a1aa; margin-bottom: 20px; text-align: center;}
+
+    /* Camera Area */
+    .camera-card {
+      width: 100%;
+      max-width: 400px;
+      background: #1f0f14;
+      border: 1px solid #d4af37;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+    #reader {
+      width: 100%;
+      min-height: 250px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    
+    .btn {
+      background: #d4af37;
+      color: #11080a;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-red { background: #9f1239; color: white; margin-top: 10px; display: none; }
+
+    /* Manual Check Area */
+    .manual-area {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .manual-area input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #52525b;
+      background: #18181b;
+      color: white;
+      text-transform: uppercase;
+      font-family: monospace;
+      outline: none;
+    }
+    .manual-area input:focus { border-color: #d4af37; }
+    .manual-area button {
+      padding: 0 20px;
+      border-radius: 8px;
+      background: #3f3f46;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Overlay Result */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: none; align-items: center; justify-content: center; z-index: 999;
+    }
+    .result-card {
+      background: #fdf8f0; color: #111; padding: 25px; border-radius: 16px;
+      width: 90%; max-width: 350px; text-align: center;
+    }
+    .icon {
+      width: 60px; height: 60px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; margin: 0 auto 15px; font-weight: bold;
+    }
+    .status-ok { background: #d1fae5; color: #059669; border: 3px solid #10b981; }
+    .status-dup { background: #fee2e2; color: #b91c1c; border: 3px solid #ef4444; }
+    .status-bad { background: #fef3c7; color: #b45309; border: 3px solid #f59e0b; }
+    
+    .tid { font-family: monospace; background: #e4e4e7; padding: 4px 10px; border-radius: 6px; font-size: 14px; margin-bottom: 10px; display: inline-block;}
+    h2 { font-size: 18px; margin-bottom: 5px; }
+    h3 { font-size: 22px; margin-bottom: 5px; color: #111;}
+    p.meta { font-size: 13px; color: #555; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<div id="warning-box">
+  ⚠️ BROWSER MEMBLOKIR KAMERA!<br>
+  Anda membuka file ini lewat file:///. <br>
+  Kamera hanya bisa menyala jika di-upload ke GitHub Pages atau pakai Localhost.
+</div>
+
+<h1>Gate Scanner Panitia</h1>
+<p class="sub">PSM Gita Sasmita 2026</p>
+
+<div class="camera-card">
+  <div id="reader"></div>
+  <button id="btn-start" class="btn">Nyalakan Kamera</button>
+  <button id="btn-stop" class="btn btn-red">Matikan Kamera</button>
+</div>
+
+<div class="manual-area">
+  <input type="text" id="manualInput" placeholder="Ketik ID: GITA-26001">
+  <button onclick="checkManual()">Cek</button>
+</div>
+
+<p style="margin-top:20px; font-size:11px; color:#888; text-decoration:underline; cursor:pointer;" onclick="setApi()">⚙️ Set URL Google Apps Script</p>
+
+<!-- Result Popup -->
+<div class="overlay" id="overlay">
+  <div class="result-card">
+    <div class="icon" id="rIcon">✓</div>
+    <h2 id="rTitle">CHECK-IN BERHASIL</h2>
+    <div class="tid" id="rId">GITA-26001</div>
+    <h3 id="rNama">Andi Pratama</h3>
+    <p class="meta" id="rMeta">Mahasiswa Universitas Pamulang</p>
+    <button class="btn" style="background:#6B1C23; color:#fff;" onclick="closePopup()">Scan Selanjutnya</button>
+  </div>
+</div>
+
+<script>
+  let API = localStorage.getItem('GITA_API_URL') || '';
+  let html5QrCode;
+  let isScanning = false;
+  
+  // Cek jika dibuka via file:///
+  if (window.location.protocol === 'file:') {
+    document.getElementById('warning-box').style.display = 'block';
+  }
+
+  // Init Camera
+  document.getElementById('btn-start').addEventListener('click', () => {
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode("reader");
+    }
+    
+    const config = { fps: 10, qrbox: { width: 200, height: 200 } };
+    
+    // Pakai kamera belakang (environment)
+    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+      .then(() => {
+        isScanning = true;
+        document.getElementById('btn-start').style.display = 'none';
+        document.getElementById('btn-stop').style.display = 'block';
+      })
+      .catch(err => {
+        alert("Gagal mengakses kamera: " + err);
+      });
+  });
+
+  document.getElementById('btn-stop').addEventListener('click', () => {
+    if (html5QrCode && isScanning) {
+      html5QrCode.stop().then(() => {
+        isScanning = false;
+        document.getElementById('btn-start').style.display = 'block';
+        document.getElementById('btn-stop').style.display = 'none';
+      });
+    }
+  });
+
+  let processing = false;
+  
+  function onScanSuccess(decodedText) {
+    if (processing) return;
+    
+    let id = decodedText.trim();
+    // Jika scan ternyata URL panjang, ambil ID-nya
+    if (id.includes('id=')) {
+      const match = id.match(/[?&]id=([^&]+)/);
+      if (match) id = decodeURIComponent(match[1]);
+    }
+    
+    validateTicket(id);
+  }
+
+  function checkManual() {
+    const id = document.getElementById('manualInput').value.trim().toUpperCase();
+    if (id) {
+      document.getElementById('manualInput').value = '';
+      validateTicket(id);
+    }
+  }
+
+  async function validateTicket(id) {
+    processing = true;
+    
+    if (!API) {
+      // MODE DEMO
+      showPopup({
+        status: 'SUCCESS', id: id, nama: 'Nama Demo', 
+        kategori: 'Mode Demo', time: '12:00'
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch(API + '?id=' + encodeURIComponent(id));
+      const data = await res.json();
+      showPopup(data);
+    } catch (e) {
+      alert("Error jaringan: " + e.message);
+      processing = false;
+    }
+  }
+
+  function showPopup(d) {
+    const icon = document.getElementById('rIcon');
+    const title = document.getElementById('rTitle');
+    
+    document.getElementById('rId').textContent = d.id || '-';
+    document.getElementById('rNama').textContent = d.nama || '-';
+    
+    if (d.status === 'SUCCESS') {
+      icon.className = 'icon status-ok'; icon.textContent = '✓';
+      title.textContent = 'BERHASIL MASUK'; title.style.color = '#059669';
+      document.getElementById('rMeta').innerHTML = `${d.kategori} <br> Jam: ${d.time}`;
+    } 
+    else if (d.status === 'DUPLICATE') {
+      icon.className = 'icon status-dup'; icon.textContent = '✕';
+      title.textContent = 'SUDAH DIGUNAKAN!'; title.style.color = '#b91c1c';
+      document.getElementById('rMeta').innerHTML = `<b style="color:red">Tiket ini sudah masuk pada: ${d.time}</b>`;
+    } 
+    else {
+      icon.className = 'icon status-bad'; icon.textContent = '!';
+      title.textContent = 'TIDAK VALID'; title.style.color = '#b45309';
+      document.getElementById('rMeta').textContent = 'ID Tiket tidak ditemukan!';
+    }
+    
+    document.getElementById('overlay').style.display = 'flex';
+  }
+
+  function closePopup() {
+    document.getElementById('overlay').style.display = 'none';
+    setTimeout(() => { processing = false; }, 500); // jeda 0.5 detik
+  }
+
+  function setApi() {
+    const url = prompt("Masukkan URL Google Apps Script:", API);
+    if (url !== null) {
+      API = url.trim();
+      localStorage.setItem('GITA_API_URL', API);
+      alert("URL berhasil disimpan!");
+    }
+  }
+</script>
+
+</body>
+</html>
