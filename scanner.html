@@ -149,8 +149,6 @@
   <button onclick="checkManual()">Cek</button>
 </div>
 
-<p style="margin-top:20px; font-size:11px; color:#888; text-decoration:underline; cursor:pointer;" onclick="setApi()">⚙️ Set URL Google Apps Script</p>
-
 <!-- Result Popup -->
 <div class="overlay" id="overlay">
   <div class="result-card">
@@ -164,7 +162,9 @@
 </div>
 
 <script>
-  let API = localStorage.getItem('GITA_API_URL') || '';
+  // Link Google Apps Script Hardcoded
+  const API = 'https://script.google.com/macros/s/AKfycbxTwEchZlguyp0ArrA7oeAQZYIqNol-EI_SJVmFp_Q0BSU7gSinOLmoz7G-AF8_0tAo3Q/exec';
+  
   let html5QrCode;
   let isScanning = false;
   
@@ -277,15 +277,6 @@
   function closePopup() {
     document.getElementById('overlay').style.display = 'none';
     setTimeout(() => { processing = false; }, 500); // jeda 0.5 detik
-  }
-
-  function setApi() {
-    const url = prompt("Masukkan URL Google Apps Script:", API);
-    if (url !== null) {
-      API = url.trim();
-      localStorage.setItem('GITA_API_URL', API);
-      alert("URL berhasil disimpan!");
-    }
   }
 </script>
 
