@@ -1,415 +1,604 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>E-Ticket – Gita Sasmita</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --ink:     #2a1a1a;
-      --burgundy: #6B1C23;
-      --burgundy-lt: #8B2E3A;
-      --gold:    #D4AF37;
-      --gold-lt: #E8D5A0;
-      --cream:   #fdf8f0;
-      --muted:   #8a6b6b;
-      --line:    rgba(212,175,55,0.3);
-    }
+  /* =========================================
+     RESET & BASE
+  ========================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      background: linear-gradient(135deg, #1a0f0f 0%, #2a1414 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'DM Sans', sans-serif;
-      padding: 32px 16px;
-    }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a0f0f 0%, #2a1414 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    font-family: 'Jost', sans-serif;
+  }
 
-    /* ── TICKET SHELL ── */
-    .ticket {
-      width: 100%;
-      max-width: 420px;
-      background: var(--cream);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.8);
-      position: relative;
-    }
+  /* =========================================
+     TICKET SHELL
+  ========================================= */
+  .ticket {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(212,175,55,0.5),
+      0 0 0 4px rgba(212,175,55,0.08),
+      0 40px 80px rgba(0,0,0,0.9);
+    background: #fdf8f0;
+  }
 
-    /* ── HEADER BAND ── */
-    .ticket-header {
-      background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-lt) 100%);
-      padding: 28px 28px 22px;
-      position: relative;
-      overflow: hidden;
-    }
+  /* =========================================
+     ZONE 1 — HEADER
+  ========================================= */
+  .z-header {
+    background: linear-gradient(160deg, #6B1C23 0%, #6B1C23 60%, #8B2E3A 100%);
+    padding: 22px 28px 18px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
 
-    /* Decorative musical ornament - top */
-    .ticket-header::before {
-      content: '♪ ♪ ♪';
-      position: absolute;
-      top: 8px;
-      right: 20px;
-      font-size: 18px;
-      color: rgba(212,175,55,0.15);
-      letter-spacing: 12px;
-    }
+  /* Subtle texture overlay */
+  .z-header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.12) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255,255,255,0.015) 28px, rgba(255,255,255,0.015) 29px);
+    pointer-events: none;
+  }
 
-    /* Decorative line pattern */
-    .ticket-header::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        180deg,
-        transparent 0px,
-        transparent 10px,
-        rgba(212,175,55,0.08) 10px,
-        rgba(212,175,55,0.08) 11px
-      );
-      pointer-events: none;
-    }
+  /* ── Logo Emblem ── */
+  .logo-emblem {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 10px;
+    z-index: 2;
+  }
 
-    .event-label {
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--gold-lt);
-      margin-bottom: 10px;
-      font-weight: 500;
-      position: relative;
-      z-index: 1;
-    }
+  .logo-ring-outer {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #d4af37, #f5e7b8, #d4af37, #9c7a23, #d4af37, #f5e7b8, #d4af37);
+    padding: 2.5px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.3);
+    margin: 0 auto;
+  }
 
-    .event-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--cream);
-      line-height: 1.05;
-      position: relative;
-      z-index: 1;
-    }
+  .logo-ring-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #ffffff;
+    border: 2.5px solid #6B1C23;
+  }
 
-    .event-name em {
-      font-style: italic;
-      color: var(--gold-lt);
-    }
+  .logo-ring-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
-    .event-sub {
-      margin-top: 8px;
-      font-size: 12px;
-      color: rgba(253,248,240,0.6);
-      letter-spacing: 0.5px;
-      position: relative;
-      z-index: 1;
-    }
+  /* ── Overline Label ── */
+  .h-overline {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: rgba(245,231,184,0.7);
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
 
-    /* ── GOLD DIVIDER ── */
-    .divider-gold {
-      height: 3px;
-      background: linear-gradient(90deg, var(--gold), var(--gold-lt), var(--gold));
-    }
+  .h-overline::before,
+  .h-overline::after {
+    content: '';
+    display: inline-block;
+    flex: 1;
+    max-width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212,175,55,0.6));
+  }
+  .h-overline::after {
+    background: linear-gradient(90deg, rgba(212,175,55,0.6), transparent);
+  }
 
-    /* ── INFO STRIP ── */
-    .info-strip {
-      background: linear-gradient(90deg, var(--burgundy) 0%, var(--burgundy-lt) 100%);
-      display: flex;
-      gap: 0;
-    }
+  /* ── Event Name ── */
+  .h-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 46px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 0.95;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 2px;
+  }
 
-    .info-cell {
-      flex: 1;
-      padding: 14px 18px;
-      border-right: 1px solid rgba(212,175,55,0.2);
-      position: relative;
-    }
-    .info-cell:last-child { border-right: none; }
+  .h-title span {
+    font-style: italic;
+    font-weight: 400;
+    color: #f5e7b8;
+    font-size: 42px;
+  }
 
-    /* Ornamental dots before each cell */
-    .info-cell::before {
-      content: '◆';
-      position: absolute;
-      top: 6px;
-      right: 8px;
-      font-size: 8px;
-      color: rgba(212,175,55,0.3);
-    }
 
-    .info-label {
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold-lt);
-      margin-bottom: 4px;
-    }
 
-    .info-value {
-      font-size: 12px;
-      color: var(--cream);
-      font-weight: 500;
-      line-height: 1.3;
-    }
+  /* =========================================
+     GOLD RIBBON DIVIDER
+  ========================================= */
+  .gold-ribbon {
+    height: 3px;
+    background: linear-gradient(90deg, #6b4c10, #d4af37, #f5e7b8, #d4af37, #6b4c10);
+  }
 
-    /* ── OPEN GATE SECTION ── */
-    .gate-section {
-      background: rgba(212,175,55,0.08);
-      padding: 12px 28px;
-      text-align: center;
-      border-bottom: 1px solid rgba(212,175,55,0.2);
-    }
+  /* =========================================
+     ZONE 2 — EVENT INFO STRIP
+  ========================================= */
+  .z-info {
+    background: linear-gradient(90deg, #6B1C23 0%, #8B2E3A 100%);
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr 1px 1fr;
+    align-items: stretch;
+  }
 
-    .gate-label {
-      font-size: 8px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 2px;
-    }
+  .info-divider {
+    background: rgba(212,175,55,0.2);
+    width: 1px;
+    align-self: stretch;
+    margin: 12px 0;
+  }
 
-    .gate-time {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--burgundy);
-    }
+  .info-cell {
+    padding: 10px 8px;
+    text-align: center;
+  }
 
-    /* ── BODY ── */
-    .ticket-body {
-      padding: 26px 28px 20px;
-    }
+  .info-cell .ic-icon {
+    font-size: 14px;
+    display: block;
+    margin-bottom: 6px;
+    color: rgba(212,175,55,0.85);
+    letter-spacing: 4px;
+  }
 
-    .attendee-label {
-      font-size: 9px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
+  .info-cell .ic-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(212,175,55,0.75);
+    margin-bottom: 4px;
+  }
 
-    .attendee-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--burgundy);
-      line-height: 1.2;
-      margin-bottom: 20px;
-    }
+  .info-cell .ic-value {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #fdf8f0;
+    line-height: 1.4;
+  }
 
-    .meta-row {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 22px;
-    }
+  /* =========================================
+     ZONE 3 — OPEN GATE BAR
+  ========================================= */
+  .z-gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px 20px;
+    background: #fdf8f0;
+    border-top: 1px solid rgba(212,175,55,0.22);
+    border-bottom: 1px solid rgba(212,175,55,0.22);
+  }
 
-    .meta-pill {
-      background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%);
-      border: 1px solid rgba(212,175,55,0.2);
-      border-radius: 6px;
-      padding: 6px 12px;
-    }
+  .gate-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #d4af37;
+  }
 
-    .meta-pill .ml { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-    .meta-pill .mv { font-size: 12px; font-weight: 500; color: var(--burgundy); margin-top: 2px; }
+  .gate-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #7d6060;
+  }
 
-    /* ── PERFORATED TEAR LINE ── */
-    .tear-line {
-      position: relative;
-      margin: 0 -28px;
-      border-top: 2px dashed rgba(212,175,55,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 10px;
-    }
+  .gate-time {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6B1C23;
+    letter-spacing: 0.5px;
+  }
 
-    .tear-circle {
-      width: 20px;
-      height: 20px;
-      background: var(--cream);
-      border: 2px solid var(--burgundy);
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin: -12px 0;
-    }
+  /* =========================================
+     ZONE 4 — TICKET HOLDER BODY
+  ========================================= */
+  .z-body {
+    background: #fdf8f0;
+    padding: 18px 28px 14px;
+  }
 
-    /* ── QR STUB ── */
-    .stub {
-      padding: 20px 28px 28px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
+  .holder-section {
+    border-left: 3px solid #d4af37;
+    padding-left: 14px;
+    margin-bottom: 12px;
+  }
 
-    .qr-wrap {
-      background: white;
-      border-radius: 12px;
-      padding: 8px;
-      border: 2px solid var(--gold);
-      flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+  .holder-label {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #b09090;
+    margin-bottom: 5px;
+  }
 
-    .qr-wrap img {
-      display: block;
-      width: 110px;
-      height: 110px;
-    }
+  .holder-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #6B1C23;
+    line-height: 1.1;
+    word-break: break-word;
+  }
 
-    .stub-info {
-      flex: 1;
-    }
+  /* Meta Chips */
+  .meta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 
-    .stub-info .sl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-    .stub-info .sv { font-size: 13px; font-weight: 500; color: var(--burgundy); margin-bottom: 12px; font-family: 'Playfair Display', serif; }
+  .chip {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 7px 13px;
+    background: #ffffff;
+    border: 1px solid rgba(212,175,55,0.35);
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
 
-    .stub-note {
-      font-size: 10px;
-      color: var(--muted);
-      line-height: 1.5;
-      border-top: 1px solid var(--line);
-      padding-top: 10px;
-    }
+  .chip-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #b09090;
+  }
 
-    /* ── FOOTER ── */
-    .ticket-footer {
-      background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-lt) 100%);
-      padding: 14px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
+  .chip-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6B1C23;
+  }
 
-    .footer-org {
-      font-size: 11px;
-      color: var(--gold-lt);
-      letter-spacing: 0.5px;
-      font-weight: 500;
-    }
+  /* =========================================
+     TEAR-OFF SEPARATOR
+  ========================================= */
+  .z-tear {
+    position: relative;
+    height: 0;
+    margin: 0 -1px;
+    border-top: 1.5px dashed rgba(212,175,55,0.5);
+  }
 
-    /* ── INVALID STATE ── */
-    .invalid-banner {
-      background: #c0392b;
-      color: white;
-      text-align: center;
-      padding: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      display: none;
-    }
+  .punch {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a0f0f 0%, #2a1414 100%);
+    border: 1.5px solid rgba(212,175,55,0.5);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    z-index: 10;
+  }
+
+  .punch-left  { left: -13px; }
+  .punch-right { right: -13px; }
+
+  /* =========================================
+     ZONE 5 — QR STUB
+  ========================================= */
+  .z-stub {
+    background: #fdf8f0;
+    padding: 16px 28px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .qr-box {
+    flex-shrink: 0;
+    background: #ffffff;
+    padding: 7px;
+    border-radius: 10px;
+    border: 1.5px solid #d4af37;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .qr-box img {
+    display: block;
+    width: 100px;
+    height: 100px;
+    border-radius: 4px;
+  }
+
+  .stub-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stub-id-label {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #b09090;
+  }
+
+  .stub-id-value {
+    font-family: 'Jost', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #6B1C23;
+    letter-spacing: 1.5px;
+    line-height: 1;
+  }
+
+
+
+  .stub-note {
+    font-size: 9.5px;
+    color: #b09090;
+    line-height: 1.5;
+    border-top: 1px solid rgba(212,175,55,0.25);
+    padding-top: 8px;
+    margin-top: 2px;
+  }
+
+  /* =========================================
+     ZONE 6 — FOOTER
+  ========================================= */
+  .z-footer {
+    background: linear-gradient(135deg, #6B1C23 0%, #8B2E3A 100%);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-top: 1.5px solid rgba(212,175,55,0.3);
+  }
+
+  .footer-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(212,175,55,0.6);
+  }
+
+  .footer-text {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,231,184,0.8);
+  }
+
+  /* =========================================
+     INVALID STATE
+  ========================================= */
+  .invalid-banner {
+    background: #a02020;
+    color: #fff;
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    display: none;
+    border-bottom: 2px solid #7c1818;
+  }
+
   </style>
 </head>
 <body>
-<div class="ticket" id="ticket">
 
+<div class="ticket" id="ticketCard">
+
+  <!-- INVALID PARAMS NOTICE -->
   <div class="invalid-banner" id="invalidBanner">
-    ⚠️ Link tiket tidak valid atau tidak lengkap.
+    ⚠️ Link tiket tidak valid atau data tidak lengkap.
   </div>
 
-  <!-- HEADER -->
-  <div class="ticket-header">
-    <div class="event-label">Konser Paduan Suara Mahasiswa</div>
-    <div class="event-name">Gita<br/><em>Sasmita</em></div>
-    <div class="event-sub">Universitas Pamulang</div>
-  </div>
+  <!-- ══════════════════════════════════════
+       ZONE 1 · HEADER
+  ══════════════════════════════════════ -->
+  <div class="z-header">
 
-  <div class="divider-gold"></div>
-
-  <!-- INFO STRIP -->
-  <div class="info-strip">
-    <div class="info-cell">
-      <div class="info-label">Tanggal</div>
-      <div class="info-value">Kamis<br/>3 Sep 2026</div>
-    </div>
-    <div class="info-cell">
-      <div class="info-label">Waktu</div>
-      <div class="info-value">16.00 – 17.30<br/>WIB</div>
-    </div>
-    <div class="info-cell">
-      <div class="info-label">Tempat</div>
-      <div class="info-value">Ruang Teleconference<br/>Gd. C Lt. 12</div>
-    </div>
-  </div>
-
-  <!-- OPEN GATE SECTION -->
-  <div class="gate-section">
-    <div class="gate-label">🚪 Pembukaan Pintu</div>
-    <div class="gate-time">15.00 WIB</div>
-  </div>
-
-  <!-- BODY -->
-  <div class="ticket-body">
-    <div class="attendee-label">Nama Peserta</div>
-    <div class="attendee-name" id="namaEl">—</div>
-
-    <div class="meta-row">
-      <div class="meta-pill" id="kategoriPill">
-        <div class="ml">Kategori</div>
-        <div class="mv" id="kategoriEl">—</div>
-      </div>
-      <div class="meta-pill" id="nimPill" style="display:none">
-        <div class="ml">NIM</div>
-        <div class="mv" id="nimEl">—</div>
+    <!-- Logo Emblem -->
+    <div class="logo-emblem">
+      <div class="logo-ring-outer">
+        <div class="logo-ring-inner">
+          <img src="logo.png" alt="Logo PSM Gita Sasmita" onerror="this.closest('.logo-emblem').style.display='none'"/>
+        </div>
       </div>
     </div>
 
-    <!-- tear line -->
-    <div class="tear-line">
-      <div class="tear-circle"></div>
-      <div class="tear-circle"></div>
+    <!-- Label Above Title -->
+    <div class="h-overline">Konser Paduan Suara Mahasiswa</div>
+
+    <!-- Event Title -->
+    <div class="h-title">
+      Gita <span>Sasmita</span>
     </div>
   </div>
 
-  <!-- STUB -->
-  <div class="stub">
-    <div class="qr-wrap">
+  <!-- Gold Ribbon -->
+  <div class="gold-ribbon"></div>
+
+  <!-- ══════════════════════════════════════
+       ZONE 2 · EVENT INFO
+  ══════════════════════════════════════ -->
+  <div class="z-info">
+    <div class="info-cell">
+      <span class="ic-icon">✸</span>
+      <div class="ic-label">Tanggal</div>
+      <div class="ic-value">Kamis<br/>3 Sep 2026</div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-cell">
+      <span class="ic-icon">✸</span>
+      <div class="ic-label">Waktu</div>
+      <div class="ic-value">16.00 – 17.30<br/>WIB</div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-cell">
+      <span class="ic-icon">✸</span>
+      <div class="ic-label">Tempat</div>
+      <div class="ic-value" style="font-size:10px;">Ruang Teleconference<br/>Gd. C, Lt. 12<br/>UNPAM Viktor</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ZONE 3 · OPEN GATE
+  ══════════════════════════════════════ -->
+  <div class="z-gate">
+    <div class="gate-dot"></div>
+    <span class="gate-label">Open Gate</span>
+    <div class="gate-dot"></div>
+    <span class="gate-time">15.00 WIB</span>
+    <div class="gate-dot"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ZONE 4 · TICKET HOLDER
+  ══════════════════════════════════════ -->
+  <div class="z-body">
+
+    <div class="holder-section">
+      <div class="holder-label">Ticket Holder</div>
+      <div class="holder-name" id="namaEl">—</div>
+    </div>
+
+    <div class="meta-chips">
+      <div class="chip" id="kategoriChip">
+        <span class="chip-label">Kategori</span>
+        <span class="chip-value" id="kategoriEl">—</span>
+      </div>
+      <div class="chip" id="nimChip" style="display:none">
+        <span class="chip-label">NIM</span>
+        <span class="chip-value" id="nimEl">—</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TEAR-OFF LINE
+  ══════════════════════════════════════ -->
+  <div class="z-tear">
+    <div class="punch punch-left"></div>
+    <div class="punch punch-right"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ZONE 5 · QR STUB
+  ══════════════════════════════════════ -->
+  <div class="z-stub">
+    <div class="qr-box">
       <img id="qrImg" src="" alt="QR Code"/>
     </div>
-    <div class="stub-info">
-      <div class="sl">ID Tiket</div>
-      <div class="sv" id="idEl">—</div>
-      <div class="stub-note">
-        Tunjukkan QR code ini kepada panitia saat memasuki venue. Tiket hanya berlaku untuk satu orang.
+
+    <div class="stub-right">
+      <div>
+        <div class="stub-id-label">Ticket ID</div>
+        <div class="stub-id-value" id="idEl">—</div>
       </div>
+      <p class="stub-note">
+        Tunjukkan QR ini kepada panitia di pintu masuk. Satu tiket hanya berlaku untuk satu orang. Harap hadir sebelum pukul 16.00 WIB.
+      </p>
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <div class="ticket-footer">
-    <div class="footer-org">PSM Gita Sasmita Universitas Pamulang</div>
+  <!-- ══════════════════════════════════════
+       ZONE 6 · FOOTER
+  ══════════════════════════════════════ -->
+  <div class="z-footer">
+    <div class="footer-dot"></div>
+    <span class="footer-text">PSM Gita Sasmita Universitas Pamulang</span>
+    <div class="footer-dot"></div>
   </div>
 
 </div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const id       = params.get('id');
-  const nama     = params.get('nama');
-  const kategori = params.get('kategori') || 'Umum';
-  const nim      = params.get('nim');
+  const p        = new URLSearchParams(window.location.search);
+  const id       = p.get('id');
+  const nama     = p.get('nama');
+  const kategori = p.get('kategori') || 'Umum';
+  const nim      = p.get('nim');
 
   if (!id || !nama) {
     document.getElementById('invalidBanner').style.display = 'block';
   } else {
-    document.getElementById('namaEl').textContent     = decodeURIComponent(nama);
-    document.getElementById('idEl').textContent       = id;
-    document.getElementById('kategoriEl').textContent = decodeURIComponent(kategori);
+    const fullName = decodeURIComponent(nama);
+    const displayName = fullName.length > 20
+      ? fullName.trim().split(/\s+/).slice(0, 2).join(' ')
+      : fullName;
+    document.getElementById('namaEl').textContent = displayName;
+    document.getElementById('idEl').textContent   = id;
 
-    if (nim) {
-      document.getElementById('nimPill').style.display = 'block';
-      document.getElementById('nimEl').textContent = nim;
+    // Kategori normalization
+    const raw = decodeURIComponent(kategori).trim().toLowerCase();
+    document.getElementById('kategoriEl').textContent =
+      (raw.includes('mahasiswa') || raw.includes('unpam'))
+        ? 'Mahasiswa Universitas Pamulang'
+        : 'Umum';
+
+    // NIM
+    if (nim && nim.trim() && nim !== '-') {
+      document.getElementById('nimChip').style.display = 'flex';
+      document.getElementById('nimEl').textContent = decodeURIComponent(nim);
     }
 
-    const qrURL = `https://quickchart.io/qr?text=${encodeURIComponent(id)}&size=300&margin=2`;
-    document.getElementById('qrImg').src = qrURL;
+    // QR Code
+    document.getElementById('qrImg').src =
+      `https://quickchart.io/qr?text=${encodeURIComponent(id)}&size=300&margin=2`;
 
     document.title = `E-Ticket – ${decodeURIComponent(nama)} | Gita Sasmita`;
   }
 </script>
+
 </body>
 </html>
