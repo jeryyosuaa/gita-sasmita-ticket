@@ -61,22 +61,24 @@
     pointer-events: none;
   }
 
-  /* ── Logo Emblem ── */
-  .logo-emblem {
+   /* ── Header inner flex row ── */
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 18px;
     position: relative;
-    display: inline-block;
-    margin-bottom: 10px;
     z-index: 2;
   }
 
+  /* ── Logo ── */
   .logo-ring-outer {
-    width: 80px;
-    height: 80px;
+    flex-shrink: 0;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
     background: conic-gradient(from 0deg, #d4af37, #f5e7b8, #d4af37, #9c7a23, #d4af37, #f5e7b8, #d4af37);
-    padding: 2.5px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.3);
-    margin: 0 auto;
+    padding: 2px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,175,55,0.25);
   }
 
   .logo-ring-inner {
@@ -85,7 +87,7 @@
     border-radius: 50%;
     overflow: hidden;
     background: #ffffff;
-    border: 2.5px solid #6B1C23;
+    border: 2px solid #6B1C23;
   }
 
   .logo-ring-inner img {
@@ -95,56 +97,65 @@
     display: block;
   }
 
-  /* ── Overline Label ── */
-  .h-overline {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 3.5px;
-    text-transform: uppercase;
-    color: rgba(245,231,184,0.7);
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+  /* ── Thin gold vertical rule between logo & text ── */
+  .header-rule {
+    flex-shrink: 0;
+    width: 1px;
+    height: 44px;
+    background: linear-gradient(180deg, transparent, rgba(212,175,55,0.55), transparent);
   }
 
-  .h-overline::before,
-  .h-overline::after {
-    content: '';
-    display: inline-block;
+  /* ── Text block ── */
+  .header-text {
     flex: 1;
-    max-width: 40px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(212,175,55,0.6));
-  }
-  .h-overline::after {
-    background: linear-gradient(90deg, rgba(212,175,55,0.6), transparent);
   }
 
-  /* ── Event Name ── */
+  .h-overline {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(245,231,184,0.65);
+    margin-bottom: 5px;
+  }
+
   .h-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 46px;
+    font-size: 34px;
     font-weight: 700;
     color: #ffffff;
-    line-height: 0.95;
-    letter-spacing: -0.5px;
-    position: relative;
-    z-index: 2;
-    margin-bottom: 2px;
+    line-height: 1;
+    letter-spacing: -0.3px;
   }
 
   .h-title span {
     font-style: italic;
     font-weight: 400;
     color: #f5e7b8;
-    font-size: 42px;
   }
 
 
+
+
+  /* =========================================
+     ZONE — CONCERT TITLE (SERENATA)
+  ========================================= */
+  .z-concert {
+    background: #fdf8f0;
+    padding: 14px 28px 10px;
+    text-align: center;
+    border-top: 1px solid rgba(212,175,55,0.35);
+    border-bottom: 1px solid rgba(212,175,55,0.35);
+  }
+
+  .concert-logo {
+    width: 100%;
+    max-width: 260px;
+    display: block;
+    margin: 0 auto;
+    /* multiply removes white bg: white × cream = cream (invisible), gold × cream = gold */
+    mix-blend-mode: multiply;
+  }
 
   /* =========================================
      GOLD RIBBON DIVIDER
@@ -446,21 +457,21 @@
   ══════════════════════════════════════ -->
   <div class="z-header">
 
-    <!-- Logo Emblem -->
-    <div class="logo-emblem">
+    <div class="header-inner">
+
       <div class="logo-ring-outer">
         <div class="logo-ring-inner">
-          <img src="logo.png" alt="Logo PSM Gita Sasmita" onerror="this.closest('.logo-emblem').style.display='none'"/>
+          <img src="logo.png" alt="Logo PSM Gita Sasmita" onerror="this.closest('.logo-ring-outer').style.display='none'"/>
         </div>
       </div>
-    </div>
 
-    <!-- Label Above Title -->
-    <div class="h-overline">Konser Paduan Suara Mahasiswa</div>
+      <div class="header-rule"></div>
 
-    <!-- Event Title -->
-    <div class="h-title">
-      Gita <span>Sasmita</span>
+      <div class="header-text">
+        <div class="h-overline">Konser Paduan Suara Mahasiswa</div>
+        <div class="h-title">Gita <span>Sasmita</span></div>
+      </div>
+
     </div>
   </div>
 
