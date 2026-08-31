@@ -213,12 +213,15 @@
       html5QrCode = new Html5Qrcode("reader", { verbose: false });
     }
 
-    // fps dinaikkan + qrbox sedikit lebih kecil supaya decode lebih cepat & ringan
+    // fps dinaikkan supaya decode lebih responsif
     const config = {
       fps: 15,
       qrbox: { width: 200, height: 200 },
-      disableFlip: true, // tiket cetak tidak perlu deteksi mirror, ini mengurangi kerja decoder
-      experimentalFeatures: { useBarCodeDetectorIfSupported: true } // pakai native BarcodeDetector browser kalau tersedia, jauh lebih cepat dari decoder JS
+      disableFlip: true // tiket cetak tidak perlu deteksi mirror, mengurangi kerja decoder
+      // CATATAN: sengaja TIDAK memakai experimentalFeatures.useBarCodeDetectorIfSupported.
+      // Fitur itu bikin QR kelihatan "terdeteksi" (kotak hijau muncul) tapi callback
+      // onScanSuccess sering tidak ke-trigger dengan benar (bug dikenal di html5-qrcode 2.3.8)
+      // -> hasilnya popup tidak pernah muncul walau kamera sudah "mendeteksi".
     };
 
     // Pakai kamera belakang (environment)
@@ -246,20 +249,39 @@
   function onScanSuccess(decodedText) {
     if (processing) return;
 
-    let id = decodedText.trim();
-    // Jika scan ternyata URL panjang, ambil ID-nya
-    if (id.includes('id=')) {
-      const match = id.match(/[?&]id=([^&]+)/);
-      if (match) id = decodeURIComponent(match[1]);
-    }
+    try {
+      let id = (decodedText || '').trim();
+      // Jika scan ternyata URL panjang, ambil ID-nya
+      if (id.includes('id=')) {
+        const match = id.match(/[?&]id=([^&]+)/);
+        if (match) id = decodeURIComponent(match[1]);
+      }
 
-    // Catatan: sengaja TIDAK memakai html5QrCode.pause()/resume() di sini.
-    // Di sebagian HP (terutama Android non-flagship & Safari iOS), pause(true)
-    // membekukan video track dan resume()-nya tidak selalu berhasil menyalakan
-    // ulang stream -> kamera terlihat "macet". Jadi kamera dibiarkan tetap
-    // menyala terus, dan dobel-scan dicegah cukup lewat flag `processing`.
-    validateTicket(id);
+      if (!id) {
+        throw new Error('QR terbaca tapi isinya kosong');
+      }
+
+      validateTicket(id);
+    } catch (err) {
+      console.error('onScanSuccess error:', err);
+      processing = false;
+      hideScanStatus();
+      setButtonsDisabled(false);
+      showPopup({ status: 'ERROR', id: decodedText, message: 'Gagal membaca QR: ' + err.message });
+    }
   }
+
+  // Pengaman terakhir: kalau ada error tak terduga di manapun saat processing = true,
+  // popup error tetap dipaksa muncul, bukan diam tanpa keterangan.
+  window.addEventListener('unhandledrejection', (event) => {
+    if (processing) {
+      console.error('Unhandled rejection while processing:', event.reason);
+      processing = false;
+      hideScanStatus();
+      setButtonsDisabled(false);
+      showPopup({ status: 'ERROR', id: '-', message: 'Terjadi kesalahan tak terduga. Coba scan ulang.' });
+    }
+  });
 
   function checkManual() {
     const id = document.getElementById('manualInput').value.trim().toUpperCase();
