@@ -183,7 +183,10 @@
 
 <!-- Panel Debug: kelihatan langsung di HP, tanpa perlu DevTools -->
 <div id="debugPanel" style="width:100%; max-width:400px; margin-top:15px; background:#0a0a0a; border:1px solid #3f3f46; border-radius:8px; padding:10px; font-family:monospace; font-size:11px; color:#22c55e; max-height:150px; overflow-y:auto;">
-  <div style="color:#a1a1aa; margin-bottom:5px;">DEBUG LOG (screenshot ini kalau ada masalah):</div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+    <span style="color:#a1a1aa;">DEBUG LOG:</span>
+    <button onclick="copyDebugLog()" style="background:#3f3f46; color:#fff; border:none; padding:4px 10px; border-radius:5px; font-size:10px; cursor:pointer;">Copy Log</button>
+  </div>
   <div id="debugLogContent"></div>
 </div>
 
@@ -208,16 +211,50 @@
   let isScanning = false;
   let processing = false;
 
+  let allLogLines = [];
+
   function debugLog(msg) {
     console.log(msg);
+    const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    const fullLine = '[' + time + '] ' + msg;
+    allLogLines.push(fullLine);
+
     const el = document.getElementById('debugLogContent');
     const line = document.createElement('div');
-    const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
-    line.textContent = '[' + time + '] ' + msg;
+    line.textContent = fullLine;
     el.appendChild(line);
-    // Batasi max 30 baris biar tidak berat
+    // Batasi tampilan DOM max 30 baris biar tidak berat (tapi allLogLines simpan semua)
     while (el.children.length > 30) el.removeChild(el.firstChild);
     el.parentElement.scrollTop = el.parentElement.scrollHeight;
+  }
+
+  function copyDebugLog() {
+    const text = allLogLines.join('\n');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text)
+        .then(() => alert('Log berhasil disalin (' + allLogLines.length + ' baris). Paste ke chat.'))
+        .catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand('copy');
+      alert('Log berhasil disalin (' + allLogLines.length + ' baris). Paste ke chat.');
+    } catch (e) {
+      alert('Gagal auto-copy. Tolong select manual teks di panel debug lalu copy.');
+    }
+    document.body.removeChild(ta);
   }
 
   // Cek jika dibuka via file:///
@@ -313,15 +350,27 @@
     }
   }
 
-  // Pengaman terakhir: kalau ada error tak terduga di manapun saat processing = true,
-  // popup error tetap dipaksa muncul, bukan diam tanpa keterangan.
+  // Pengaman terakhir: kalau ada error async tak terduga (promise rejection) di manapun,
+  // sekarang WAJIB tercatat di panel debug juga, bukan cuma di console.
   window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled rejection:', event.reason);
+    debugLog('UNHANDLED REJECTION: ' + (event.reason && event.reason.message ? event.reason.message : event.reason));
     if (processing) {
-      console.error('Unhandled rejection while processing:', event.reason);
       processing = false;
       hideScanStatus();
       setButtonsDisabled(false);
       showPopup({ status: 'ERROR', id: '-', message: 'Terjadi kesalahan tak terduga. Coba scan ulang.' });
+    }
+  });
+
+  // Pengaman untuk error sinkron yang lolos dari semua try/catch
+  window.addEventListener('error', (event) => {
+    debugLog('WINDOW ERROR: ' + event.message + ' (' + event.filename + ':' + event.lineno + ')');
+    if (processing) {
+      processing = false;
+      hideScanStatus();
+      setButtonsDisabled(false);
+      showPopup({ status: 'ERROR', id: '-', message: 'Terjadi kesalahan: ' + event.message });
     }
   });
 
@@ -349,6 +398,7 @@
   }
 
   async function validateTicket(id) {
+    debugLog('validateTicket() dipanggil dengan id=' + id);
     processing = true;
     setButtonsDisabled(true);
     // Tampilkan feedback INSTAN begitu QR/ID terbaca, sebelum server jawab
