@@ -200,7 +200,6 @@
 
   let html5QrCode;
   let isScanning = false;
-  let isPaused = false;
   let processing = false;
 
   // Cek jika dibuka via file:///
@@ -238,7 +237,6 @@
     if (html5QrCode && isScanning) {
       html5QrCode.stop().then(() => {
         isScanning = false;
-        isPaused = false;
         document.getElementById('btn-start').style.display = 'block';
         document.getElementById('btn-stop').style.display = 'none';
       });
@@ -255,13 +253,11 @@
       if (match) id = decodeURIComponent(match[1]);
     }
 
-    // Jeda kamera SEGERA (bukan stop) supaya tidak scan ulang QR yang sama
-    // sambil nunggu jawaban server. pause() jauh lebih cepat drpd stop()+start() lagi nanti.
-    if (isScanning && !isPaused) {
-      html5QrCode.pause(true);
-      isPaused = true;
-    }
-
+    // Catatan: sengaja TIDAK memakai html5QrCode.pause()/resume() di sini.
+    // Di sebagian HP (terutama Android non-flagship & Safari iOS), pause(true)
+    // membekukan video track dan resume()-nya tidak selalu berhasil menyalakan
+    // ulang stream -> kamera terlihat "macet". Jadi kamera dibiarkan tetap
+    // menyala terus, dan dobel-scan dicegah cukup lewat flag `processing`.
     validateTicket(id);
   }
 
@@ -331,10 +327,6 @@
 
       // Karena gagal total (bukan hasil dari server), izinkan scan ulang langsung
       processing = false;
-      if (isPaused) {
-        html5QrCode.resume();
-        isPaused = false;
-      }
     }
   }
 
@@ -380,12 +372,7 @@
 
     setTimeout(() => {
       processing = false;
-      // Lanjutkan kamera dari jeda (pause), bukan restart dari awal -> jauh lebih cepat siap scan lagi
-      if (isPaused && html5QrCode && isScanning) {
-        html5QrCode.resume();
-        isPaused = false;
-      }
-    }, 400); // jeda singkat supaya kamera tidak langsung baca ulang tiket yang sama
+    }, 800); // jeda singkat supaya kamera tidak langsung baca ulang tiket yang sama begitu popup ditutup
   }
 </script>
 
