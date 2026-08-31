@@ -181,6 +181,12 @@
   <button id="btn-manual" onclick="checkManual()">Cek</button>
 </div>
 
+<!-- Panel Debug: kelihatan langsung di HP, tanpa perlu DevTools -->
+<div id="debugPanel" style="width:100%; max-width:400px; margin-top:15px; background:#0a0a0a; border:1px solid #3f3f46; border-radius:8px; padding:10px; font-family:monospace; font-size:11px; color:#22c55e; max-height:150px; overflow-y:auto;">
+  <div style="color:#a1a1aa; margin-bottom:5px;">DEBUG LOG (screenshot ini kalau ada masalah):</div>
+  <div id="debugLogContent"></div>
+</div>
+
 <!-- Result Popup -->
 <div class="overlay" id="overlay">
   <div class="result-card">
@@ -202,6 +208,18 @@
   let isScanning = false;
   let processing = false;
 
+  function debugLog(msg) {
+    console.log(msg);
+    const el = document.getElementById('debugLogContent');
+    const line = document.createElement('div');
+    const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    line.textContent = '[' + time + '] ' + msg;
+    el.appendChild(line);
+    // Batasi max 30 baris biar tidak berat
+    while (el.children.length > 30) el.removeChild(el.firstChild);
+    el.parentElement.scrollTop = el.parentElement.scrollHeight;
+  }
+
   // Cek jika dibuka via file:///
   if (window.location.protocol === 'file:') {
     document.getElementById('warning-box').style.display = 'block';
@@ -216,8 +234,14 @@
     // fps dinaikkan supaya decode lebih responsif
     const config = {
       fps: 15,
-      qrbox: { width: 200, height: 200 },
-      disableFlip: true // tiket cetak tidak perlu deteksi mirror, mengurangi kerja decoder
+      qrbox: { width: 230, height: 230 }, // sedikit lebih besar, membantu kalau QR di tiket agak kecil/HP dipegang tidak stabil
+      disableFlip: true, // tiket cetak tidak perlu deteksi mirror, mengurangi kerja decoder
+      videoConstraints: {
+        facingMode: "environment",
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+        // resolusi ideal (bukan max) supaya browser tidak maksa resolusi terlalu tinggi yang malah bikin autofocus lambat/hunting di kondisi minim cahaya
+      }
       // CATATAN: sengaja TIDAK memakai experimentalFeatures.useBarCodeDetectorIfSupported.
       // Fitur itu bikin QR kelihatan "terdeteksi" (kotak hijau muncul) tapi callback
       // onScanSuccess sering tidak ke-trigger dengan benar (bug dikenal di html5-qrcode 2.3.8)
@@ -225,16 +249,30 @@
     };
 
     // Pakai kamera belakang (environment)
-    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+    debugLog('Memulai kamera...');
+    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
       .then(() => {
         isScanning = true;
+        debugLog('Kamera aktif, siap scan.');
         document.getElementById('btn-start').style.display = 'none';
         document.getElementById('btn-stop').style.display = 'block';
       })
       .catch(err => {
+        debugLog('GAGAL start kamera: ' + err);
         alert("Gagal mengakses kamera: " + err);
       });
   });
+
+  let lastFailLogTime = 0;
+  function onScanFailure(error) {
+    // Dipanggil hampir tiap frame kalau belum ada QR valid di kotak -> jangan di-log tiap kali (spam).
+    // Cukup log 1x tiap 3 detik supaya kelihatan kamera memang lagi nyoba decode terus, bukan diam.
+    const now = Date.now();
+    if (now - lastFailLogTime > 3000) {
+      lastFailLogTime = now;
+      debugLog('Masih mencoba decode... (belum ada QR valid terbaca)');
+    }
+  }
 
   document.getElementById('btn-stop').addEventListener('click', () => {
     if (html5QrCode && isScanning) {
@@ -249,6 +287,8 @@
   function onScanSuccess(decodedText) {
     if (processing) return;
 
+    debugLog('QR TERDETEKSI: "' + decodedText + '"');
+
     try {
       let id = (decodedText || '').trim();
       // Jika scan ternyata URL panjang, ambil ID-nya
@@ -261,9 +301,11 @@
         throw new Error('QR terbaca tapi isinya kosong');
       }
 
+      debugLog('ID hasil parsing: ' + id);
       validateTicket(id);
     } catch (err) {
       console.error('onScanSuccess error:', err);
+      debugLog('ERROR saat parsing QR: ' + err.message);
       processing = false;
       hideScanStatus();
       setButtonsDisabled(false);
@@ -312,6 +354,7 @@
     // Tampilkan feedback INSTAN begitu QR/ID terbaca, sebelum server jawab
     // -> ini yang bikin aplikasi terasa cepat walau network butuh 1-2 detik
     showScanStatus('Memvalidasi ' + id + '...');
+    debugLog('Mulai validasi ID: ' + id);
 
     if (!API) {
       // MODE DEMO
@@ -328,16 +371,20 @@
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
     try {
+      debugLog('Mengirim request ke server...');
       const res = await fetch(API + '?id=' + encodeURIComponent(id), { signal: controller.signal });
       clearTimeout(timeoutId);
+      debugLog('Response diterima, status HTTP: ' + res.status);
 
       if (!res.ok) throw new Error('Server merespons status ' + res.status);
 
       const data = await res.json();
+      debugLog('Data server: ' + JSON.stringify(data));
       hideScanStatus();
       showPopup(data);
     } catch (e) {
       clearTimeout(timeoutId);
+      debugLog('ERROR fetch: ' + e.name + ' - ' + e.message);
       hideScanStatus();
       setButtonsDisabled(false);
 
